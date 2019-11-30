@@ -1,0 +1,14 @@
+md /Test
+md / Dir1 / Dir2 / NewDir
+
+mf /Dir2/Dir3/file.txt
+
+rm / Dir2 / Dir3
+rm /Dir2/Dir3/file.txt
+
+cp /Dir2/Dir3 /Dir1
+   cp /Dir2/Dir3/file.txt
+cp /Dir2/Dir3/file.txt /Dir1/newfile.txt
+
+mv ???
+
