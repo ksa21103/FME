@@ -2,4 +2,158 @@
 // Created by Копиенко Сергей on 30.11.2019.
 //
 
+#include <algorithm>
+
 #include "FMEStorage.h"
+
+const std::string FMEStorage::kSeparator = "/";
+
+FMEStorage::FMEStorage()
+    : m_rootContainer("")
+{
+    m_rootContainer.entries.push_back(std::make_shared<EntryFolderRoot>());
+}
+
+const EntryFolder& FMEStorage::root() const
+{
+    return *static_cast<const EntryFolder*>(m_rootContainer.entries.front().get());
+}
+
+EntryFolder& FMEStorage::root()
+{
+    return *static_cast<EntryFolder*>(m_rootContainer.entries.front().get());
+}
+
+bool
+FMEStorage::exist(EntryFolder& folder, const std::string& name)
+{
+    EntryBase::EntryKind entryKind;
+    return exist(folder, name, entryKind);
+}
+
+bool
+FMEStorage::exist(EntryFolder& folder, const std::string& name, EntryBase::EntryKind& entryKind)
+{
+    bool bResult(false);
+
+    auto it = find(folder, name);
+    if (it != folder.entries.end())
+    {
+        entryKind = (*it)->kind;
+        bResult = true;
+    }
+
+    return bResult;
+}
+
+Entries::iterator
+FMEStorage::find(EntryFolder& folder, const std::string& name)
+{
+    return std::find_if(folder.entries.begin(), folder.entries.end(),
+                        [&name](const auto& item)
+                        {
+                            return item->name == name;
+                        });
+}
+
+EntryFolder*
+FMEStorage::findFolder(const std::vector<std::string>& folders)
+{
+    if (folders.empty())
+        return &m_rootContainer;
+
+    if (folders.front() != root().name)
+        return nullptr;
+
+    EntryFolder* pEntryFolder = &root();
+    for (auto it = folders.begin() + 1; it != folders.end(); ++it)
+    {
+        if (!exist(*pEntryFolder, *it))
+            throw std::runtime_error("Folder not found " + *it);
+
+        auto entryIt = find(*pEntryFolder, *it);
+        auto pEntryBase = entryIt->get();
+        if (pEntryBase->kind != EntryBase::EntryKind::eFolder)
+            return nullptr;
+
+        pEntryFolder = static_cast<EntryFolder*>(pEntryBase);
+    }
+
+    return pEntryFolder;
+}
+
+bool
+FMEStorage::createFile(EntryFolder& folder, const std::string& name, FMEStorage::ErrorCode& ec)
+{
+    EntryBase::EntryKind entryKind;
+    if (exist(folder, name, entryKind))
+    {
+        ec = entryKind == EntryBase::EntryKind::eFile ? ErrorCode::eExist : ErrorCode::eExistWithDiffType;
+        return false;
+    }
+
+    folder.entries.emplace_back(std::make_shared<EntryFile>(name));
+    ec = ErrorCode::eSuccess;
+
+    return true;
+}
+
+bool
+FMEStorage::createFolder(EntryFolder& folder, const std::string& name, FMEStorage::ErrorCode& ec)
+{
+    if (&folder == &root() && name == "/")
+    {
+        ec = ErrorCode::eExist;
+        return false;
+    }
+
+    EntryBase::EntryKind entryKind;
+    if (exist(folder, name, entryKind))
+    {
+        ec = entryKind == EntryBase::EntryKind::eFolder ? ErrorCode::eExist : ErrorCode::eExistWithDiffType;
+        return false;
+    }
+
+    folder.entries.emplace_back(std::make_shared<EntryFolder>(name));
+    ec = ErrorCode::eSuccess;
+
+    return true;
+}
+
+bool
+FMEStorage::remove(EntryFolder& folder, const std::string& name, FMEStorage::ErrorCode& ec)
+{
+    auto it = find(folder, name);
+    if (it == folder.entries.end())
+    {
+        ec = ErrorCode::eNotFound;
+        return false;
+    }
+
+    if ((*it)->readOnly)
+    {
+        ec = ErrorCode::eReadOnly;
+        return false;
+    }
+
+    folder.entries.erase(it);
+
+    ec = ErrorCode::eSuccess;
+    return true;
+}
+
+EntryBasePtr EntryFile::clone()
+{
+    return std::make_shared<EntryFile>(name, readOnly);
+}
+
+EntryBasePtr EntryFolder::clone()
+{
+    auto newFolder = std::make_shared<EntryFolder>(name, readOnly);
+
+    std::transform(entries.begin(), entries.end(),
+                   std::back_inserter(newFolder->entries),
+                   [](EntryBasePtr pEntry) { return pEntry->clone(); });
+
+    return newFolder;
+}
