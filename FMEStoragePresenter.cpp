@@ -4,12 +4,12 @@
 
 #include "FMEStoragePresenter.h"
 
-FMEStoragePresenter::FMEStoragePresenter(std::ostream &os)
+FMEStoragePresenter::FMEStoragePresenter(std::ostream& os)
     : m_os(os)
 {
 }
 
-void FMEStoragePresenter::show(const FMEStorage &disk)
+void FMEStoragePresenter::show(const FMEStorage& disk)
 {
 
 }
