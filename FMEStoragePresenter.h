@@ -18,6 +18,10 @@ public:
 
 private:
 
+    void show(const EntryFolder& folder, const std::string& prefix);
+
+private:
+
     std::ostream& m_os;
 };
 
