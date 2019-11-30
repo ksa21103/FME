@@ -1,0 +1,237 @@
+//
+// Created by Копиенко Сергей on 30.11.2019.
+//
+
+#include <cstring>
+
+#include "FMECommandsEngine.h"
+
+void throw_wrong_params_count(const std::string& cmdName, size_t required, size_t paramsCount);
+
+void throw_operation_error(FMEStorage::ErrorCode ec, const std::string& name)
+{
+    std::string str = "Operation error : ";
+    switch (ec)
+    {
+    case FMEStorage::ErrorCode::eSuccess:
+        str += " unknown";
+        break;
+
+    case FMEStorage::ErrorCode::eNotFound:
+        str += " file/folder not found";
+        break;
+
+    case FMEStorage::ErrorCode::eExist:
+        str += " file/folder already exist";
+        break;
+
+    case FMEStorage::ErrorCode::eExistWithDiffType:
+        str += " file/folder already exist, but has other type";
+        break;
+
+    case FMEStorage::ErrorCode::eReadOnly:
+        str += " operation disabled for this folder";
+        break;
+    }
+
+    if (!name.empty())
+        str += " (" + name + ")";
+
+    throw std::runtime_error(str);
+}
+
+void throw_folder_not_found(const std::vector<std::string>& folderPath)
+{
+    std::string str = "Folder not found : ";
+    str += std::to_string(folderPath);
+
+    throw std::runtime_error(str);
+}
+
+void throw_invalid_entry_type(const std::string& name, EntryBase::EntryKind required, EntryBase::EntryKind real)
+{
+    std::string str = "Invalid entry type of '" + name + "' entry";
+    throw std::runtime_error(str);
+}
+
+FMECommandsEngine::FMECommandsEngine(FMEStorage& diskStorage)
+    : m_diskStorage(diskStorage)
+{
+}
+
+void FMECommandsEngine::processCommand(const FMECmdBase& cmd, const FMECmdParams& params)
+{
+    switch (cmd.getKind())
+    {
+    case FMECommandKind::eCreateDirectory:
+        processCreateDirectory(cmd, params);
+        break;
+    case FMECommandKind::eCreateFile:
+        processCreateFile(cmd, params);
+        break;
+    case FMECommandKind::eRemove:
+        processRemove(cmd, params);
+        break;
+    case FMECommandKind::eCopy:
+        processCopy(cmd, params);
+        break;
+    case FMECommandKind::eMove:
+        processMove(cmd, params);
+        break;
+
+    default:
+        throw std::runtime_error("Command processing not implemented for " + cmd.getCmdName());
+    }
+}
+
+void FMECommandsEngine::processCreateDirectory(const FMECmdBase& cmd, const FMECmdParams& params)
+{
+    if (params.size() != 1)
+        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+
+    auto folders = parseParam(params.front());
+    if (folders.empty())
+        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+
+    const auto folderToCreate = folders.back();
+    folders.pop_back();
+
+    EntryFolder* pEntryFolder = m_diskStorage.findFolder(folders);
+    if (!pEntryFolder)
+        throw_folder_not_found(folders);
+
+    FMEStorage::ErrorCode ec;
+    if (!m_diskStorage.createFolder(*pEntryFolder, folderToCreate, ec))
+        throw_operation_error(ec, folderToCreate);
+}
+
+void FMECommandsEngine::processCreateFile(const FMECmdBase& cmd, const FMECmdParams& params)
+{
+    if (params.size() != 1)
+        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+
+    auto folders = parseParam(params.front());
+    if (folders.empty())
+        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+
+    const auto fileToCreate = folders.back();
+    folders.pop_back();
+
+    EntryFolder* pEntryFolder = m_diskStorage.findFolder(folders);
+    if (!pEntryFolder)
+        throw_folder_not_found(folders);
+
+    FMEStorage::ErrorCode ec;
+    if (!m_diskStorage.createFile(*pEntryFolder, fileToCreate, ec))
+    {
+        // Notes: if such file already exists with the given path then FME should continue to the next
+        //        command in the batch file without any error rising.
+        if (ec != FMEStorage::ErrorCode::eExist)
+            throw_operation_error(ec, fileToCreate);
+    }
+}
+
+void FMECommandsEngine::processRemove(const FMECmdBase& cmd, const FMECmdParams& params)
+{
+    if (params.size() != 1)
+        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+
+    auto folders = parseParam(params.front());
+    if (folders.empty())
+        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+
+    const auto itemToRemove = folders.back();
+    folders.pop_back();
+
+    EntryFolder* pEntryFolder = m_diskStorage.findFolder(folders);
+    if (!pEntryFolder)
+        throw_folder_not_found(folders);
+
+    FMEStorage::ErrorCode ec;
+    if (!m_diskStorage.remove(*pEntryFolder, itemToRemove, ec))
+        throw_operation_error(ec, itemToRemove);
+}
+
+void FMECommandsEngine::processCopy(const FMECmdBase& cmd, const FMECmdParams& params)
+{
+    if (params.size() != 2)
+        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+
+    auto folderFrom = parseParam(params[0]);
+    if (folderFrom.empty())
+        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+
+    const auto itemToProcess = folderFrom.back();
+    folderFrom.pop_back();
+
+    EntryFolder* pEntryFolderFrom = m_diskStorage.findFolder(folderFrom);
+    if (!pEntryFolderFrom)
+        throw_folder_not_found(folderFrom);
+
+    auto entryItCopy = m_diskStorage.find(*pEntryFolderFrom, itemToProcess);
+    if (entryItCopy == pEntryFolderFrom->entries.end())
+        throw_operation_error(FMEStorage::ErrorCode::eNotFound, itemToProcess);
+
+    auto folderTo = parseParam(params[0]);
+    if (folderTo.empty())
+        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+
+    EntryFolder* pEntryFolderTo = m_diskStorage.findFolder(folderTo);
+    if (!pEntryFolderTo)
+        throw_folder_not_found(folderTo);
+
+    pEntryFolderTo->entries.push_back((*entryItCopy)->clone());
+}
+
+void FMECommandsEngine::processMove(const FMECmdBase& cmd, const FMECmdParams& params)
+{
+    if (params.size() != 2)
+        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+
+    auto folderFrom = parseParam(params[0]);
+    if (folderFrom.empty())
+        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+
+    const auto itemToProcess = folderFrom.back();
+    folderFrom.pop_back();
+
+    EntryFolder* pEntryFolderFrom = m_diskStorage.findFolder(folderFrom);
+    if (!pEntryFolderFrom)
+        throw_folder_not_found(folderFrom);
+
+    auto entryItMove = m_diskStorage.find(*pEntryFolderFrom, itemToProcess);
+    if (entryItMove == pEntryFolderFrom->entries.end())
+        throw_operation_error(FMEStorage::ErrorCode::eNotFound, itemToProcess);
+
+    auto entryToMove = *entryItMove;
+    pEntryFolderFrom->entries.erase(entryItMove);
+
+    auto folderTo = parseParam(params[1]);
+    if (folderTo.empty())
+        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+
+    EntryFolder* pEntryFolderTo = m_diskStorage.findFolder(folderTo);
+    if (!pEntryFolderTo)
+        throw_folder_not_found(folderTo);
+
+    pEntryFolderTo->entries.push_back(entryToMove);
+}
+
+std::vector<std::string> FMECommandsEngine::parseParam(const FMECmdParam& param)
+{
+    std::vector<std::string> result;
+
+    // Initially file system contains only the root directory marked as “/”.
+    result.push_back("/");
+
+    auto item = std::strtok((char*)param.c_str(), FMEStorage::kSeparator.c_str());
+    while (item)
+    {
+        result.push_back(item);
+        item = std::strtok(nullptr, FMEStorage::kSeparator.c_str());
+    }
+
+    return result;
+}
+
+
