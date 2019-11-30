@@ -1,33 +1,45 @@
 #include <iostream>
 #include <string>
 
-#include "FMEStorage.h"
+#include "FMECommandsParser.h"
+#include "FMECommandsEngine.h"
 #include "FMEStoragePresenter.h"
 
 int main(int argc, char** argv)
 {
-    int result = 0;
+    FMEStorage disk;
 
+    std::string strCmd;
+    size_t lineNo = 0;
     try
     {
-        FMEStorage disk;
+        FMECommandsEngine cmdEngine(disk);
 
-        std::string srcCmdLine;
-        while (std::getline(std::cin >> std::ws, srcCmdLine))
+        FMECommandsParser cmdParser;
+        while (std::getline(std::cin >> std::ws, strCmd))
         {
-            if (srcCmdLine.empty())
+            ++lineNo;
+
+            if (strCmd.empty())
                 continue;
 
-        }
+            FMECmdParams cmdParams;
+            auto cmd = cmdParser.parse(strCmd, cmdParams);
+            if (!cmd)
+                throw std::runtime_error("Unknown command: " + strCmd);
 
-        FMEStoragePresenter presenter(std::cout);
-        presenter.show(disk);
+            cmdEngine.processCommand(*cmd, cmdParams);
+        }
     }
     catch (const std::exception& exc)
     {
-        result = -1;
-        std::cout << "ERROR: " << exc.what();
+        std::cout << "ERROR: " << exc.what() << std::endl;
+        std::cout << "       in string " << lineNo << " : " << strCmd << std::endl;
+        return -1;
     }
 
-    return result;
+    FMEStoragePresenter presenter(std::cout);
+    presenter.show(disk);
+
+    return 0;
 }
