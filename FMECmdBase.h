@@ -9,7 +9,7 @@
 #include <string>
 #include <memory>
 
-enum class FMECommandKind
+enum class CommandKinds
 {
     eCreateDirectory,
     eCreateFile,
@@ -18,8 +18,8 @@ enum class FMECommandKind
     eMove
 };
 
-using FMECmdParam = std::string;
-using FMECmdParams = std::vector<FMECmdParam>;
+using TCmdParam = std::string;
+using TCmdParamsContainer = std::vector<TCmdParam>;
 
 ////////////////////////////////////////////////////////////////////////////////
 // class FMECmdBase - base FME commands class
@@ -27,16 +27,16 @@ class FMECmdBase
 {
 public:
 
-    FMECmdBase(FMECommandKind kind, const std::string& cmdName, size_t paramsCount);
+    FMECmdBase(CommandKinds kind, const std::string& cmdName, size_t paramsCount);
     virtual ~FMECmdBase() = default;
 
-    FMECommandKind     getKind() const;
-    const std::string& getCmdName() const;
+    CommandKinds       getKind       () const;
+    const std::string& getName       () const;
     size_t             getParamsCount() const;
 
 private:
 
-    const FMECommandKind m_kind;
+    const CommandKinds m_kind;
     const std::string m_cmdName;
     const size_t      m_paramsCount;
 };

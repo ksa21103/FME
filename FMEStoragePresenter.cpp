@@ -29,13 +29,13 @@ void FMEStoragePresenter::show(const EntryFolder& folder, const std::string& pre
     //  | |_EDir4
     //  | | |_temp.dat
 
-    std::vector<EntryBasePtr> sortedEntries;
+    std::vector<TEntryBasePtr> sortedEntries;
     sortedEntries.reserve(folder.entries.size());
 
     std::copy(folder.entries.begin(), folder.entries.end(), std::back_inserter(sortedEntries));
 
     std::sort(sortedEntries.begin(), sortedEntries.end(),
-              [](EntryBasePtr& entry1, EntryBasePtr& entry2)
+              [](TEntryBasePtr& entry1, TEntryBasePtr& entry2)
               {
                   return entry1->kind < entry2->kind
                          || (entry1->kind == entry2->kind
@@ -49,14 +49,14 @@ void FMEStoragePresenter::show(const EntryFolder& folder, const std::string& pre
 
         switch (item->kind)
         {
-        case EntryBase::EntryKind::eFolder:
+        case TEntryBase::EntryKind::eFolder:
             {
                 auto thisFolder = *static_cast<EntryFolder*>(item.get());
                 show(thisFolder, prefix + kLevelPrefix);
             }
             break;
 
-        case EntryBase::EntryKind::eFile:
+        case TEntryBase::EntryKind::eFile:
             break;
         }
     }

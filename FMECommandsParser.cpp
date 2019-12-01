@@ -9,11 +9,11 @@ void throw_unknown_command()
     throw std::runtime_error("Unknown command");
 }
 
-void throw_wrong_params_count(const std::string& cmdName, size_t required, size_t paramsCount)
+void throw_wrong_params_count(const FMECmdBase& cmd, size_t paramsCount)
 {
-    std::string errorStr = "Invalid params count for command " + cmdName + " : ";
+    std::string errorStr = "Invalid params count for command " + cmd.getName() + " : ";
     errorStr += std::to_string(paramsCount);
-    errorStr += " (required : " + std::to_string(required) + ")";
+    errorStr += " (required : " + std::to_string(cmd.getParamsCount()) + ")";
 
     throw std::runtime_error(errorStr);
 }
@@ -27,7 +27,7 @@ FMECommandsParser::FMECommandsParser()
     registerCommand<FMECmdMove>();
 }
 
-FMECmdBasePtr FMECommandsParser::parse(const std::string& strCmd, FMECmdParams& cmdParams)
+FMECmdBasePtr FMECommandsParser::parse(const std::string& strCmd, TCmdParamsContainer& cmdParams)
 {
     cmdParams.clear();
 
@@ -41,7 +41,7 @@ FMECmdBasePtr FMECommandsParser::parse(const std::string& strCmd, FMECmdParams& 
 
     const auto& cmd = *it->second;
     if (cmd.getParamsCount() != (parts.size() - 1))
-        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), parts.size() - 1);
+        throw_wrong_params_count(cmd, parts.size() - 1);
 
     std::copy(parts.begin() + 1, parts.end(),
               std::back_insert_iterator(cmdParams));
@@ -100,5 +100,5 @@ template<typename TCmd>
 void FMECommandsParser::registerCommand()
 {
     FMECmdBasePtr pCmd = std::make_shared<TCmd>();
-    m_commands.emplace(pCmd->getCmdName(), pCmd);
+    m_commands.emplace(pCmd->getName(), pCmd);
 }

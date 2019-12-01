@@ -6,7 +6,7 @@
 
 #include "FMEStorage.h"
 
-const std::string FMEStorage::kSeparator = "/";
+const TEntryName FMEStorage::kSeparator = "/";
 
 FMEStorage::FMEStorage()
     : m_rootContainer("")
@@ -25,14 +25,14 @@ EntryFolder& FMEStorage::root()
 }
 
 bool
-FMEStorage::exist(EntryFolder& folder, const std::string& name)
+FMEStorage::exist(EntryFolder& folder, const TEntryName& name)
 {
-    EntryBase::EntryKind entryKind;
+    TEntryBase::EntryKind entryKind;
     return exist(folder, name, entryKind);
 }
 
 bool
-FMEStorage::exist(EntryFolder& folder, const std::string& name, EntryBase::EntryKind& entryKind)
+FMEStorage::exist(EntryFolder& folder, const TEntryName& name, TEntryBase::EntryKind& entryKind)
 {
     bool bResult(false);
 
@@ -47,7 +47,7 @@ FMEStorage::exist(EntryFolder& folder, const std::string& name, EntryBase::Entry
 }
 
 Entries::iterator
-FMEStorage::find(EntryFolder& folder, const std::string& name)
+FMEStorage::find(EntryFolder& folder, const TEntryName& name)
 {
     return std::find_if(folder.entries.begin(), folder.entries.end(),
                         [&name](const auto& item)
@@ -57,7 +57,7 @@ FMEStorage::find(EntryFolder& folder, const std::string& name)
 }
 
 EntryFolder*
-FMEStorage::findFolder(const std::vector<std::string>& folders)
+FMEStorage::findFolder(const TEntryPath& folders)
 {
     if (folders.empty())
         return &m_rootContainer;
@@ -73,7 +73,7 @@ FMEStorage::findFolder(const std::vector<std::string>& folders)
 
         auto entryIt = find(*pEntryFolder, *it);
         auto pEntryBase = entryIt->get();
-        if (pEntryBase->kind != EntryBase::EntryKind::eFolder)
+        if (pEntryBase->kind != TEntryBase::EntryKind::eFolder)
             return nullptr;
 
         pEntryFolder = static_cast<EntryFolder*>(pEntryBase);
@@ -83,12 +83,12 @@ FMEStorage::findFolder(const std::vector<std::string>& folders)
 }
 
 bool
-FMEStorage::createFile(EntryFolder& folder, const std::string& name, FMEStorage::ErrorCode& ec)
+FMEStorage::createFile(EntryFolder& folder, const TEntryName& name, FMEStorage::ErrorCode& ec)
 {
-    EntryBase::EntryKind entryKind;
+    TEntryBase::EntryKind entryKind;
     if (exist(folder, name, entryKind))
     {
-        ec = entryKind == EntryBase::EntryKind::eFile ? ErrorCode::eExist : ErrorCode::eExistWithDiffType;
+        ec = entryKind == TEntryBase::EntryKind::eFile ? ErrorCode::eExist : ErrorCode::eExistWithDiffType;
         return false;
     }
 
@@ -99,7 +99,7 @@ FMEStorage::createFile(EntryFolder& folder, const std::string& name, FMEStorage:
 }
 
 bool
-FMEStorage::createFolder(EntryFolder& folder, const std::string& name, FMEStorage::ErrorCode& ec)
+FMEStorage::createFolder(EntryFolder& folder, const TEntryName& name, FMEStorage::ErrorCode& ec)
 {
     if (&folder == &root() && name == "/")
     {
@@ -107,10 +107,10 @@ FMEStorage::createFolder(EntryFolder& folder, const std::string& name, FMEStorag
         return false;
     }
 
-    EntryBase::EntryKind entryKind;
+    TEntryBase::EntryKind entryKind;
     if (exist(folder, name, entryKind))
     {
-        ec = entryKind == EntryBase::EntryKind::eFolder ? ErrorCode::eExist : ErrorCode::eExistWithDiffType;
+        ec = entryKind == TEntryBase::EntryKind::eFolder ? ErrorCode::eExist : ErrorCode::eExistWithDiffType;
         return false;
     }
 
@@ -121,7 +121,7 @@ FMEStorage::createFolder(EntryFolder& folder, const std::string& name, FMEStorag
 }
 
 bool
-FMEStorage::remove(EntryFolder& folder, const std::string& name, FMEStorage::ErrorCode& ec)
+FMEStorage::remove(EntryFolder& folder, const TEntryName& name, FMEStorage::ErrorCode& ec)
 {
     auto it = find(folder, name);
     if (it == folder.entries.end())
@@ -142,18 +142,18 @@ FMEStorage::remove(EntryFolder& folder, const std::string& name, FMEStorage::Err
     return true;
 }
 
-EntryBasePtr EntryFile::clone()
+TEntryBasePtr EntryFile::clone()
 {
     return std::make_shared<EntryFile>(name, readOnly);
 }
 
-EntryBasePtr EntryFolder::clone()
+TEntryBasePtr EntryFolder::clone()
 {
     auto newFolder = std::make_shared<EntryFolder>(name, readOnly);
 
     std::transform(entries.begin(), entries.end(),
                    std::back_inserter(newFolder->entries),
-                   [](EntryBasePtr pEntry) { return pEntry->clone(); });
+                   [](TEntryBasePtr pEntry) { return pEntry->clone(); });
 
     return newFolder;
 }

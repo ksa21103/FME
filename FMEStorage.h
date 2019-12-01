@@ -9,11 +9,32 @@
 #include <memory>
 #include <string>
 
-class EntryBase;
-using EntryBasePtr = std::shared_ptr<EntryBase>;
+class TEntryBase;
+using TEntryBasePtr = std::shared_ptr<TEntryBase>;
+
+using TEntryName = std::string;
+using TEntryPath = std::vector<TEntryName>;
+
+namespace std
+{
+    inline
+    std::string to_string(const TEntryPath& path)
+    {
+        std::string text;
+
+        for (const auto& item : path)
+        {
+            if (!text.empty() && text != "/")
+                text += "/";
+            text += item;
+        }
+
+        return text;
+    }
+};
 
 ////////////////////////////////////////////////////////////////////////////////
-struct EntryBase
+struct TEntryBase
 {
     enum class EntryKind
     {
@@ -21,43 +42,43 @@ struct EntryBase
         eFile
     };
 
-    EntryBase(const EntryKind& _kind, const std::string& _name, bool _redOnly = false)
+    TEntryBase(const EntryKind& _kind, const TEntryName& _name, bool _redOnly = false)
         : kind(_kind),
           name(_name),
           readOnly(_redOnly)
     {
     }
 
-    virtual ~EntryBase() = default;
+    virtual ~TEntryBase() = default;
 
-    virtual EntryBasePtr clone() = 0;
+    virtual TEntryBasePtr clone() = 0;
 
-    const EntryKind   kind;             //< Entry kind (file, folder,...)
-    const std::string name;             //< Entry name
-    const bool        readOnly = false; //< Readonly entry
+    const EntryKind    kind;             //< Entry kind (file, folder,...)
+    const TEntryName name;             //< Entry name
+    const bool         readOnly = false; //< Readonly entry
 };
-using Entries = std::vector<EntryBasePtr>;
+using Entries = std::vector<TEntryBasePtr>;
 
 ////////////////////////////////////////////////////////////////////////////////
-struct EntryFile : EntryBase
+struct EntryFile : TEntryBase
 {
-    EntryFile(const std::string& name, bool readOnly = false)
-        : EntryBase(EntryBase::EntryKind::eFile, name, readOnly)
+    EntryFile(const TEntryName& name, bool readOnly = false)
+        : TEntryBase(TEntryBase::EntryKind::eFile, name, readOnly)
     {
     }
 
-    virtual EntryBasePtr clone() override;
+    virtual TEntryBasePtr clone() override;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-struct EntryFolder : EntryBase
+struct EntryFolder : TEntryBase
 {
-    EntryFolder(const std::string& name, bool readOnly = false)
-        : EntryBase(EntryBase::EntryKind::eFolder, name, readOnly)
+    EntryFolder(const TEntryName& name, bool readOnly = false)
+        : TEntryBase(TEntryBase::EntryKind::eFolder, name, readOnly)
     {
     }
 
-    virtual EntryBasePtr clone();
+    virtual TEntryBasePtr clone();
 
     Entries entries;    //< Child entries
 };
@@ -77,18 +98,18 @@ class FMEStorage
 {
 public:
 
-    static const std::string kSeparator;
+    static const TEntryName kSeparator;
 
     FMEStorage();
 
     const EntryFolder& root() const;
     EntryFolder& root();
 
-    bool              exist(EntryFolder& folder, const std::string& name);
-    bool              exist(EntryFolder& folder, const std::string& name, EntryBase::EntryKind& entryKind);
-    Entries::iterator find (EntryFolder& folder, const std::string& name);
+    bool              exist(EntryFolder& folder, const TEntryName& name);
+    bool              exist(EntryFolder& folder, const TEntryName& name, TEntryBase::EntryKind& entryKind);
+    Entries::iterator find (EntryFolder& folder, const TEntryName& name);
 
-    EntryFolder*      findFolder(const std::vector<std::string>& folders);
+    EntryFolder*      findFolder(const TEntryPath& folders);
 
     enum class ErrorCode
     {
@@ -99,9 +120,9 @@ public:
         eReadOnly
     };
 
-    bool createFile  (EntryFolder& folder, const std::string& name, ErrorCode& ec);
-    bool createFolder(EntryFolder& folder, const std::string& name, ErrorCode& ec);
-    bool remove      (EntryFolder& folder, const std::string& name, ErrorCode& ec);
+    bool createFile  (EntryFolder& folder, const TEntryName& name, ErrorCode& ec);
+    bool createFolder(EntryFolder& folder, const TEntryName& name, ErrorCode& ec);
+    bool remove      (EntryFolder& folder, const TEntryName& name, ErrorCode& ec);
 
 private:
 

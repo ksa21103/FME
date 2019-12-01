@@ -15,18 +15,18 @@ public:
 
     FMECommandsEngine(FMEStorage& diskStorage);
 
-    void processCommand(const FMECmdBase& cmd, const FMECmdParams& params);
+    void processCommand(const FMECmdBase& cmd, const TCmdParamsContainer& params);
 
 private:
 
-    void processCreateDirectory(const FMECmdBase& cmd, const FMECmdParams& params);
-    void processCreateFile     (const FMECmdBase& cmd, const FMECmdParams& params);
-    void processRemove         (const FMECmdBase& cmd, const FMECmdParams& params);
-    void processCopy           (const FMECmdBase& cmd, const FMECmdParams& params);
-    void processMove           (const FMECmdBase& cmd, const FMECmdParams& params);
+    void processCreateDirectory(const FMECmdBase& cmd, const TCmdParamsContainer& params);
+    void processCreateFile     (const FMECmdBase& cmd, const TCmdParamsContainer& params);
+    void processRemove         (const FMECmdBase& cmd, const TCmdParamsContainer& params);
+    void processCopy           (const FMECmdBase& cmd, const TCmdParamsContainer& params);
+    void processMove           (const FMECmdBase& cmd, const TCmdParamsContainer& params);
 
-    std::vector<std::string> parseParam(const FMECmdParam& param);
-    bool isSameStartOfPath(const std::vector<std::string> pathMain, const std::vector<std::string>& pathTesting) const;
+    TEntryPath parseParam(const TCmdParam& param);
+    bool    isSameStartOfPath(const TEntryPath pathMain, const TEntryPath& pathTesting) const;
 
 private:
 

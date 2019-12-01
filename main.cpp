@@ -23,7 +23,7 @@ int main(int argc, char** argv)
             if (strCmd.empty())
                 continue;
 
-            FMECmdParams cmdParams;
+            TCmdParamsContainer cmdParams;
             auto cmd = cmdParser.parse(strCmd, cmdParams);
             if (!cmd)
                 throw std::runtime_error("Unknown command: " + strCmd);

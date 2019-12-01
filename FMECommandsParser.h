@@ -17,7 +17,7 @@ public:
 
     FMECommandsParser();
 
-    FMECmdBasePtr parse(const std::string& strCmd, FMECmdParams& cmdParams);
+    FMECmdBasePtr parse(const std::string& strCmd, TCmdParamsContainer& cmdParams);
 
 private:
 

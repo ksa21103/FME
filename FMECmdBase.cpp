@@ -10,14 +10,14 @@ static std::string kCmdNameRemove          = "rm";
 static std::string kCmdNameCopy            = "cp";
 static std::string kCmdNameMove            = "mv";
 
-FMECmdBase::FMECmdBase(FMECommandKind kind, const std::string& cmdName, size_t paramsCount)
+FMECmdBase::FMECmdBase(CommandKinds kind, const std::string& cmdName, size_t paramsCount)
     : m_kind(kind),
       m_cmdName(cmdName),
       m_paramsCount(paramsCount)
 {
 }
 
-const std::string& FMECmdBase::getCmdName() const
+const std::string& FMECmdBase::getName() const
 {
     return m_cmdName;
 }
@@ -27,33 +27,33 @@ size_t FMECmdBase::getParamsCount() const
     return m_paramsCount;
 }
 
-FMECommandKind FMECmdBase::getKind() const
+CommandKinds FMECmdBase::getKind() const
 {
     return m_kind;
 }
 
 FMECmdCreateDirectory::FMECmdCreateDirectory()
-    : FMECmdBase(FMECommandKind::eCreateDirectory, kCmdNameCreateDirectory, 1)
+    : FMECmdBase(CommandKinds::eCreateDirectory, kCmdNameCreateDirectory, 1)
 {
 }
 
 FMECmdCreateFile::FMECmdCreateFile()
-    : FMECmdBase(FMECommandKind::eCreateFile, kCmdNameCreateFile, 1)
+    : FMECmdBase(CommandKinds::eCreateFile, kCmdNameCreateFile, 1)
 {
 }
 
 FMECmdRemove::FMECmdRemove()
-    : FMECmdBase(FMECommandKind::eRemove, kCmdNameRemove, 1)
+    : FMECmdBase(CommandKinds::eRemove, kCmdNameRemove, 1)
 {
 }
 
 
 FMECmdCopy::FMECmdCopy()
-    : FMECmdBase(FMECommandKind::eCopy, kCmdNameCopy, 2)
+    : FMECmdBase(CommandKinds::eCopy, kCmdNameCopy, 2)
 {
 }
 
 FMECmdMove::FMECmdMove()
-    : FMECmdBase(FMECommandKind::eMove, kCmdNameMove, 2)
+    : FMECmdBase(CommandKinds::eMove, kCmdNameMove, 2)
 {
 }

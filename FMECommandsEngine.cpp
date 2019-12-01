@@ -6,9 +6,9 @@
 
 #include "FMECommandsEngine.h"
 
-void throw_wrong_params_count(const std::string& cmdName, size_t required, size_t paramsCount);
+void throw_wrong_params_count(const FMECmdBase& cmd, size_t paramsCount);
 
-void throw_operation_error(FMEStorage::ErrorCode ec, const std::string& name)
+void throw_operation_error(FMEStorage::ErrorCode ec, const TEntryName& name)
 {
     std::string str = "Operation error : ";
     switch (ec)
@@ -40,7 +40,7 @@ void throw_operation_error(FMEStorage::ErrorCode ec, const std::string& name)
     throw std::runtime_error(str);
 }
 
-void throw_folder_not_found(const std::vector<std::string>& folderPath)
+void throw_folder_not_found(const TEntryPath& folderPath)
 {
     std::string str = "Folder not found : ";
     str += std::to_string(folderPath);
@@ -48,15 +48,15 @@ void throw_folder_not_found(const std::vector<std::string>& folderPath)
     throw std::runtime_error(str);
 }
 
-void throw_invalid_entry_type(const std::string& name, EntryBase::EntryKind required, EntryBase::EntryKind real)
+void throw_invalid_entry_type(const TEntryName& name, TEntryBase::EntryKind required, TEntryBase::EntryKind real)
 {
     std::string str = "Invalid entry type of '" + name + "' entry";
     throw std::runtime_error(str);
 }
 
-void throw_bad_dest_folder(const std::vector<std::string>& destPath)
+void throw_bad_dest_folder(const TEntryPath& destPath)
 {
-    std::string str = "Bad destination path (" + destPath + ")";
+    std::string str = "Bad destination path (" + std::to_string(destPath) + ")";
     throw std::runtime_error(str);
 }
 
@@ -65,39 +65,39 @@ FMECommandsEngine::FMECommandsEngine(FMEStorage& diskStorage)
 {
 }
 
-void FMECommandsEngine::processCommand(const FMECmdBase& cmd, const FMECmdParams& params)
+void FMECommandsEngine::processCommand(const FMECmdBase& cmd, const TCmdParamsContainer& params)
 {
     switch (cmd.getKind())
     {
-    case FMECommandKind::eCreateDirectory:
+    case CommandKinds::eCreateDirectory:
         processCreateDirectory(cmd, params);
         break;
-    case FMECommandKind::eCreateFile:
+    case CommandKinds::eCreateFile:
         processCreateFile(cmd, params);
         break;
-    case FMECommandKind::eRemove:
+    case CommandKinds::eRemove:
         processRemove(cmd, params);
         break;
-    case FMECommandKind::eCopy:
+    case CommandKinds::eCopy:
         processCopy(cmd, params);
         break;
-    case FMECommandKind::eMove:
+    case CommandKinds::eMove:
         processMove(cmd, params);
         break;
 
     default:
-        throw std::runtime_error("Command processing not implemented for " + cmd.getCmdName());
+        throw std::runtime_error("Command processing not implemented for " + cmd.getName());
     }
 }
 
-void FMECommandsEngine::processCreateDirectory(const FMECmdBase& cmd, const FMECmdParams& params)
+void FMECommandsEngine::processCreateDirectory(const FMECmdBase& cmd, const TCmdParamsContainer& params)
 {
     if (params.size() != 1)
-        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+        throw_wrong_params_count(cmd, params.size());
 
     auto folders = parseParam(params.front());
     if (folders.empty())
-        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+        throw_wrong_params_count(cmd, params.size());
 
     const auto folderToCreate = folders.back();
     folders.pop_back();
@@ -111,14 +111,14 @@ void FMECommandsEngine::processCreateDirectory(const FMECmdBase& cmd, const FMEC
         throw_operation_error(ec, folderToCreate);
 }
 
-void FMECommandsEngine::processCreateFile(const FMECmdBase& cmd, const FMECmdParams& params)
+void FMECommandsEngine::processCreateFile(const FMECmdBase& cmd, const TCmdParamsContainer& params)
 {
     if (params.size() != 1)
-        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+        throw_wrong_params_count(cmd, params.size());
 
     auto folders = parseParam(params.front());
     if (folders.empty())
-        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+        throw_wrong_params_count(cmd, params.size());
 
     const auto fileToCreate = folders.back();
     folders.pop_back();
@@ -137,14 +137,14 @@ void FMECommandsEngine::processCreateFile(const FMECmdBase& cmd, const FMECmdPar
     }
 }
 
-void FMECommandsEngine::processRemove(const FMECmdBase& cmd, const FMECmdParams& params)
+void FMECommandsEngine::processRemove(const FMECmdBase& cmd, const TCmdParamsContainer& params)
 {
     if (params.size() != 1)
-        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+        throw_wrong_params_count(cmd, params.size());
 
     auto folders = parseParam(params.front());
     if (folders.empty())
-        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+        throw_wrong_params_count(cmd, params.size());
 
     const auto itemToRemove = folders.back();
     folders.pop_back();
@@ -158,18 +158,18 @@ void FMECommandsEngine::processRemove(const FMECmdBase& cmd, const FMECmdParams&
         throw_operation_error(ec, itemToRemove);
 }
 
-void FMECommandsEngine::processCopy(const FMECmdBase& cmd, const FMECmdParams& params)
+void FMECommandsEngine::processCopy(const FMECmdBase& cmd, const TCmdParamsContainer& params)
 {
     if (params.size() != 2)
-        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+        throw_wrong_params_count(cmd, params.size());
 
     auto folderFrom = parseParam(params[0]);
     if (folderFrom.empty())
-        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+        throw_wrong_params_count(cmd, params.size());
 
     auto folderTo = parseParam(params[1]);
     if (folderTo.empty())
-        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+        throw_wrong_params_count(cmd, params.size());
 
     const auto itemToProcess = folderFrom.back();
     folderFrom.pop_back();
@@ -189,18 +189,18 @@ void FMECommandsEngine::processCopy(const FMECmdBase& cmd, const FMECmdParams& p
     pEntryFolderTo->entries.push_back((*entryItCopy)->clone());
 }
 
-void FMECommandsEngine::processMove(const FMECmdBase& cmd, const FMECmdParams& params)
+void FMECommandsEngine::processMove(const FMECmdBase& cmd, const TCmdParamsContainer& params)
 {
     if (params.size() != 2)
-        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+        throw_wrong_params_count(cmd, params.size());
 
     auto folderFrom = parseParam(params[0]);
     if (folderFrom.empty())
-        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+        throw_wrong_params_count(cmd, params.size());
 
     auto folderTo = parseParam(params[1]);
     if (folderTo.empty())
-        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+        throw_wrong_params_count(cmd, params.size());
 
     if (isSameStartOfPath(folderTo, folderFrom))
         throw_bad_dest_folder(folderTo);
@@ -226,9 +226,9 @@ void FMECommandsEngine::processMove(const FMECmdBase& cmd, const FMECmdParams& p
     pEntryFolderTo->entries.push_back(entryToMove);
 }
 
-std::vector<std::string> FMECommandsEngine::parseParam(const FMECmdParam& param)
+TEntryPath FMECommandsEngine::parseParam(const TCmdParam& param)
 {
-    std::vector<std::string> result;
+    TEntryPath result;
 
     // Initially file system contains only the root directory marked as “/”.
     result.push_back("/");
@@ -244,7 +244,7 @@ std::vector<std::string> FMECommandsEngine::parseParam(const FMECmdParam& param)
 }
 
 bool FMECommandsEngine::isSameStartOfPath(
-    const std::vector<std::string> pathMain, const std::vector<std::string>& pathTesting) const
+        const TEntryPath pathMain, const TEntryPath& pathTesting) const
 {
     bool bResult(pathMain.size() >= pathTesting.size());
 
