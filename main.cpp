@@ -1,14 +1,20 @@
 #include <iostream>
 #include <string>
+#include <csignal>
 
 #include "FMECommandsParser.h"
 #include "FMECommandsEngine.h"
 #include "FMEStoragePresenter.h"
 
-int main(int argc, char** argv)
+void signal_handler(int signal)
 {
-    FMEStorage disk;
+    std::cout << std::endl;
+    std::cout << "ERROR: signal " << signal << " received - exit!" << std::endl;
+    exit(signal);
+}
 
+int worker(FMEStorage& disk)
+{
     std::string strCmd;
     size_t lineNo = 0;
     try
@@ -38,8 +44,21 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    FMEStoragePresenter presenter(std::cout);
-    presenter.show(disk);
-
     return 0;
+}
+
+int main(int argc, char** argv)
+{
+    std::signal(SIGINT, signal_handler);
+
+    FMEStorage disk;
+    int result = worker(disk);
+
+    if (!result)
+    {
+        FMEStoragePresenter presenter(std::cout);
+        presenter.show(disk);
+    }
+
+    return result;
 }
