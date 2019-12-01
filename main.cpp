@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <csignal>
+#include <fstream>
 
 #include "FMECommandsParser.h"
 #include "FMECommandsEngine.h"
@@ -13,7 +14,13 @@ void signal_handler(int signal)
     exit(signal);
 }
 
-int worker(FMEStorage& disk)
+/**
+ * Worker function of FME application
+ * @param is - stream for read source text with FME commands
+ * @param disk - FME disk storage
+ * @return result code: 0 if success, -1 if errors
+ */
+int worker(std::istream& is, FMEStorage& disk)
 {
     std::string strCmd;
     size_t lineNo = 0;
@@ -22,7 +29,7 @@ int worker(FMEStorage& disk)
         FMECommandsEngine cmdEngine(disk);
 
         FMECommandsParser cmdParser;
-        while (std::getline(std::cin >> std::ws, strCmd))
+        while (std::getline(is >> std::ws, strCmd))
         {
             ++lineNo;
 
@@ -51,8 +58,19 @@ int main(int argc, char** argv)
 {
     std::signal(SIGINT, signal_handler);
 
+    std::ifstream cmdFile;
+    if (argc > 1)
+    {
+        cmdFile.open(argv[1]);
+        if (!cmdFile.is_open())
+        {
+            std::cout << "ERROR: unable to open file " << argv[1] << " - exit!" << std::endl;
+            exit(-1);
+        }
+    }
+
     FMEStorage disk;
-    int result = worker(disk);
+    int result = worker(cmdFile.is_open() ? cmdFile : std::cin, disk);
 
     if (!result)
     {

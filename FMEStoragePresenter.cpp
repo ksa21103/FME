@@ -1,6 +1,8 @@
-//
-// Created by Копиенко Сергей on 30.11.2019.
-//
+/**
+ * @file   FMEStoragePresenter.cpp
+ * @author Kopienko S.A.
+ * @brief  Implementation of FME storage visualisation
+ */
 
 #include <iostream>
 

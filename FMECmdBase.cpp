@@ -1,6 +1,9 @@
-//
-// Created by Копиенко Сергей on 30.11.2019.
-//
+/**
+ * @file   FMECmdBase.cpp
+ * @author Kopienko S.A.
+ * @brief  Implementation of FME console commands
+ */
+
 
 #include "FMECmdBase.h"
 

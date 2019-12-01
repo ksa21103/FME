@@ -1,6 +1,9 @@
-//
-// Created by Копиенко Сергей on 30.11.2019.
-//
+/**
+ * @file   FMECommandsEngine.h
+ * @author Kopienko S.A.
+ * @brief  Declaration of main FME disk storage operations
+ */
+
 
 #ifndef FME_FMECOMMANDSENGINE_H
 #define FME_FMECOMMANDSENGINE_H
@@ -9,7 +12,7 @@
 #include "FMEStorage.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-// class FMECommandsEngine - inplements of main operations for FME Disk storage
+// class FMECommandsEngine - implements of main operations for FME Disk storage
 class FMECommandsEngine
 {
 public:

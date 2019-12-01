@@ -1,6 +1,8 @@
-//
-// Created by Копиенко Сергей on 30.11.2019.
-//
+/**
+ * @file   FMEStoragePresenter.h
+ * @author Kopienko S.A.
+ * @brief  Declaration of FME storage visualisation
+ */
 
 #ifndef FME_FMESTORAGEPRESENTER_H
 #define FME_FMESTORAGEPRESENTER_H

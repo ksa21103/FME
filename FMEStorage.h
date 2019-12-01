@@ -1,6 +1,8 @@
-//
-// Created by Копиенко Сергей on 30.11.2019.
-//
+/**
+ * @file   FMEStorage.h
+ * @author Kopienko S.A.
+ * @brief  Declaration of FME disk storage
+ */
 
 #ifndef FME_FMESTORAGE_H
 #define FME_FMESTORAGE_H

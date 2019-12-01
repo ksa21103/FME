@@ -1,6 +1,8 @@
-//
-// Created by Копиенко Сергей on 30.11.2019.
-//
+/**
+ * @file   FMECommandsEngine.cpp
+ * @author Kopienko S.A.
+ * @brief  Implementation of main operations for FME Disk storage
+ */
 
 #include <cstring>
 

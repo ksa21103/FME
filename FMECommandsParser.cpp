@@ -1,6 +1,9 @@
-//
-// Created by Копиенко Сергей on 30.11.2019.
-//
+/**
+ * @file   FMECommandsParser.cpp
+ * @author Kopienko S.A.
+ * @brief  Implementation of command line parser
+ */
+
 
 #include "FMECommandsParser.h"
 

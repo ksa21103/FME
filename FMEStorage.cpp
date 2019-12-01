@@ -1,6 +1,8 @@
-//
-// Created by Копиенко Сергей on 30.11.2019.
-//
+/**
+ * @file   FMEStorage.cpp
+ * @author Kopienko S.A.
+ * @brief  Implementation of FME disk storage
+ */
 
 #include <algorithm>
 
