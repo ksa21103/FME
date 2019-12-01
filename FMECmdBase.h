@@ -42,15 +42,15 @@ public:
 
     /// Get command kind
     /// \return - FME command kind
-    CommandKinds       getKind       () const;
+    [[nodiscard]] CommandKinds       getKind       () const;
 
     /// Get command name
     /// \return - FME console command name
-    const std::string& getName       () const;
+    [[nodiscard]] const std::string& getName       () const;
 
     /// Get required params count
     /// \return - required params count
-    size_t             getParamsCount() const;
+    [[nodiscard]] size_t             getParamsCount() const;
 
 private:
 

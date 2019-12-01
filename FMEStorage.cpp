@@ -18,12 +18,12 @@ FMEStorage::FMEStorage()
 
 const EntryFolder& FMEStorage::root() const
 {
-    return *static_cast<const EntryFolder*>(m_rootContainer.entries.front().get());
+    return *dynamic_cast<const EntryFolder*>(m_rootContainer.entries.front().get());
 }
 
 EntryFolder& FMEStorage::root()
 {
-    return *static_cast<EntryFolder*>(m_rootContainer.entries.front().get());
+    return *dynamic_cast<EntryFolder*>(m_rootContainer.entries.front().get());
 }
 
 bool
@@ -78,7 +78,7 @@ FMEStorage::findFolder(const TEntryPath& folders)
         if (pEntryBase->kind != TEntryBase::EntryKind::eFolder)
             return nullptr;
 
-        pEntryFolder = static_cast<EntryFolder*>(pEntryBase);
+        pEntryFolder = dynamic_cast<EntryFolder*>(pEntryBase);
     }
 
     return pEntryFolder;
@@ -155,7 +155,7 @@ TEntryBasePtr EntryFolder::clone()
 
     std::transform(entries.begin(), entries.end(),
                    std::back_inserter(newFolder->entries),
-                   [](TEntryBasePtr pEntry) { return pEntry->clone(); });
+                   [](const TEntryBasePtr& pEntry) { return pEntry->clone(); });
 
     return newFolder;
 }

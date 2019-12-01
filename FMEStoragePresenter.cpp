@@ -53,7 +53,7 @@ void FMEStoragePresenter::show(const EntryFolder& folder, const std::string& pre
         {
         case TEntryBase::EntryKind::eFolder:
             {
-                auto thisFolder = *static_cast<EntryFolder*>(item.get());
+                auto thisFolder = *dynamic_cast<EntryFolder*>(item.get());
                 show(thisFolder, prefix + kLevelPrefix);
             }
             break;

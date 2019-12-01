@@ -20,7 +20,7 @@ public:
     /// Constructor
     ///
     /// \param diskStorage - FME disk storage
-    FMECommandsEngine(FMEStorage& diskStorage);
+    explicit FMECommandsEngine(FMEStorage& diskStorage);
 
     /// Execute FME console command
     ///
@@ -63,13 +63,13 @@ private:
     /// Parse param to FME path
     /// \param param - FMC console command param
     /// \return - FME path
-    TEntryPath parseParam(const TCmdParam& param);
+    static TEntryPath parseParam(const TCmdParam& param);
 
     /// Check that main path start from testing path
     /// \param pathMain - main path
     /// \param pathTesting - testing path
     /// \return - true - if main path start from testing path; false - otherwise
-    bool    isSameStartOfPath(const TEntryPath pathMain, const TEntryPath& pathTesting) const;
+    [[nodiscard]] static bool isSameStartOfPath(const TEntryPath& pathMain, const TEntryPath& pathTesting);
 
 private:
 

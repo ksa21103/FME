@@ -19,7 +19,7 @@ public:
     /// Constructor
     ///
     /// \param os - stream for visualisation output
-    FMEStoragePresenter(std::ostream& os);
+    explicit FMEStoragePresenter(std::ostream& os);
 
     /// Visualisation of FME disk storage
     ///

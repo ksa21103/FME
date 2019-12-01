@@ -50,7 +50,7 @@ void throw_folder_not_found(const TEntryPath& folderPath)
     throw std::runtime_error(str);
 }
 
-void throw_invalid_entry_type(const TEntryName& name, TEntryBase::EntryKind required, TEntryBase::EntryKind real)
+void throw_invalid_entry_type(const TEntryName& name, TEntryBase::EntryKind real)
 {
     std::string str = "Invalid entry type of '" + name + "' entry";
     throw std::runtime_error(str);
@@ -73,23 +73,26 @@ void FMECommandsEngine::processCommand(const FMECmdBase& cmd, const TCmdParamsCo
     {
     case CommandKinds::eCreateDirectory:
         processCreateDirectory(cmd, params);
-        break;
+        return;
+
     case CommandKinds::eCreateFile:
         processCreateFile(cmd, params);
-        break;
+        return;
+
     case CommandKinds::eRemove:
         processRemove(cmd, params);
-        break;
+        return;
+
     case CommandKinds::eCopy:
         processCopy(cmd, params);
-        break;
+        return;
+
     case CommandKinds::eMove:
         processMove(cmd, params);
-        break;
-
-    default:
-        throw std::runtime_error("Command processing not implemented for " + cmd.getName());
+        return;
     }
+
+    throw std::runtime_error("Command processing not implemented for " + cmd.getName());
 }
 
 void FMECommandsEngine::processCreateDirectory(const FMECmdBase& cmd, const TCmdParamsContainer& params)
@@ -246,7 +249,7 @@ TEntryPath FMECommandsEngine::parseParam(const TCmdParam& param)
 }
 
 bool FMECommandsEngine::isSameStartOfPath(
-        const TEntryPath pathMain, const TEntryPath& pathTesting) const
+        const TEntryPath& pathMain, const TEntryPath& pathTesting)
 {
     bool bResult(pathMain.size() >= pathTesting.size());
 

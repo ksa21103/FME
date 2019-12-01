@@ -7,6 +7,7 @@
 #ifndef FME_FMESTORAGE_H
 #define FME_FMESTORAGE_H
 
+#include <utility>
 #include <vector>
 #include <memory>
 #include <string>
@@ -37,7 +38,7 @@ namespace std
 
         return text;
     }
-};
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// class TEntryBase - describes base type of FME disk storage
@@ -54,10 +55,10 @@ struct TEntryBase
     ///
     /// \param _kind - FME disk storage entry kind
     /// \param _name - FME disk storage entry name
-    /// \param _redOnly - FME disk storage entry kind reaonly state
-    TEntryBase(const EntryKind& _kind, const TEntryName& _name, bool _redOnly = false)
+    /// \param _redOnly - FME disk storage entry kind readonly state
+    TEntryBase(const EntryKind& _kind, TEntryName  _name, bool _redOnly = false)
         : kind(_kind),
-          name(_name),
+          name(std::move(_name)),
           readOnly(_redOnly)
     {
     }
@@ -82,7 +83,7 @@ struct EntryFile : TEntryBase
     ///
     /// \param name - name of file
     /// \param readOnly - readonly state
-    EntryFile(const TEntryName& name, bool readOnly = false)
+    explicit EntryFile(const TEntryName& name, bool readOnly = false)
         : TEntryBase(TEntryBase::EntryKind::eFile, name, readOnly)
     {
     }
@@ -98,7 +99,7 @@ struct EntryFolder : TEntryBase
     /// Constructor
     /// \param name - name of folder
     /// \param readOnly - readonly state
-    EntryFolder(const TEntryName& name, bool readOnly = false)
+    explicit EntryFolder(const TEntryName& name, bool readOnly = false)
         : TEntryBase(TEntryBase::EntryKind::eFolder, name, readOnly)
     {
     }
@@ -133,7 +134,7 @@ public:
 
     /// Get root FME folder
     /// \return - root FME folder
-    const EntryFolder& root() const;
+    [[nodiscard]] const EntryFolder& root() const;
     EntryFolder& root();
 
     /// Check than specified folder contain specified entry
