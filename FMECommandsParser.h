@@ -11,16 +11,22 @@
 #include "FMECmdBase.h"
 
 ////////////////////////////////////////////////////////////////////////////////
+// class FMECommandsParser - FME command line parser
 class FMECommandsParser
 {
 public:
 
     FMECommandsParser();
 
+    /// Parse FME command line and return created FME command
+    /// \param strCmd - source command line text
+    /// \param cmdParams - filled by parsed params
+    /// \return - parsed FME command
     FMECmdBasePtr parse(const std::string& strCmd, TCmdParamsContainer& cmdParams);
 
 private:
 
+    /// Register FME command
     template <typename TCmd>
     void registerCommand();
 
@@ -28,7 +34,7 @@ private:
 
 private:
 
-    std::unordered_map<std::string, FMECmdBasePtr> m_commands;
+    std::unordered_map<std::string, FMECmdBasePtr> m_commands;  //< Registered FME commands container
 };
 
 

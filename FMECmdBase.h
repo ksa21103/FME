@@ -9,6 +9,8 @@
 #include <string>
 #include <memory>
 
+////////////////////////////////////////////////////////////////////////////////
+// enum CommandKinds - describes FME console commands
 enum class CommandKinds
 {
     eCreateDirectory,
@@ -27,18 +29,31 @@ class FMECmdBase
 {
 public:
 
+    /// Constructor
+    ///
+    /// \param kind - FME console command kind
+    /// \param cmdName - command name
+    /// \param paramsCount - required params count
     FMECmdBase(CommandKinds kind, const std::string& cmdName, size_t paramsCount);
     virtual ~FMECmdBase() = default;
 
+    /// Get command kind
+    /// \return - FME command kind
     CommandKinds       getKind       () const;
+
+    /// Get command name
+    /// \return - FME console command name
     const std::string& getName       () const;
+
+    /// Get required params count
+    /// \return - required params count
     size_t             getParamsCount() const;
 
 private:
 
-    const CommandKinds m_kind;
-    const std::string m_cmdName;
-    const size_t      m_paramsCount;
+    const CommandKinds m_kind;          //< Command kind
+    const std::string  m_cmdName;       //< Command name
+    const size_t       m_paramsCount;   //< Required params count
 };
 using FMECmdBasePtr = std::shared_ptr<FMECmdBase>;
 
