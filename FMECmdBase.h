@@ -12,7 +12,7 @@
 #include <memory>
 
 ////////////////////////////////////////////////////////////////////////////////
-// enum CommandKinds - describes FME console commands
+/// enum CommandKinds - describes FME console commands
 enum class CommandKinds
 {
     eCreateDirectory,
@@ -26,7 +26,7 @@ using TCmdParam = std::string;
 using TCmdParamsContainer = std::vector<TCmdParam>;
 
 ////////////////////////////////////////////////////////////////////////////////
-// class FMECmdBase - base FME commands class
+/// class FMECmdBase - base FME commands class
 class FMECmdBase
 {
 public:
