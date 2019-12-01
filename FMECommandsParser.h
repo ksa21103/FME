@@ -4,7 +4,6 @@
  * @brief  Declaration of command line parser
  */
 
-
 #ifndef FME_FMECOMMANDSPARSER_H
 #define FME_FMECOMMANDSPARSER_H
 
@@ -33,12 +32,17 @@ private:
     template <typename TCmd>
     void registerCommand();
 
-    std::vector<std::string> parseStr(const std::string& str);
+    /// Parse source string to vector of substrings.
+    ///
+    /// Separation processed by any space-chars.
+    ///
+    /// \param str - source string to parse
+    /// \return std::vector<std::string> - vector of substrings
+    static std::vector<std::string> parseStr(const std::string& str);
 
 private:
 
     std::unordered_map<std::string, FMECmdBasePtr> m_commands;  //< Registered FME commands container
 };
-
 
 #endif //FME_FMECOMMANDSPARSER_H
