@@ -26,6 +26,7 @@ private:
     void processMove           (const FMECmdBase& cmd, const FMECmdParams& params);
 
     std::vector<std::string> parseParam(const FMECmdParam& param);
+    bool isSameStartOfPath(const std::vector<std::string> pathMain, const std::vector<std::string>& pathTesting) const;
 
 private:
 

@@ -54,6 +54,12 @@ void throw_invalid_entry_type(const std::string& name, EntryBase::EntryKind requ
     throw std::runtime_error(str);
 }
 
+void throw_bad_dest_folder(const std::vector<std::string>& destPath)
+{
+    std::string str = "Bad destination path (" + destPath + ")";
+    throw std::runtime_error(str);
+}
+
 FMECommandsEngine::FMECommandsEngine(FMEStorage& diskStorage)
     : m_diskStorage(diskStorage)
 {
@@ -161,6 +167,10 @@ void FMECommandsEngine::processCopy(const FMECmdBase& cmd, const FMECmdParams& p
     if (folderFrom.empty())
         throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
 
+    auto folderTo = parseParam(params[1]);
+    if (folderTo.empty())
+        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+
     const auto itemToProcess = folderFrom.back();
     folderFrom.pop_back();
 
@@ -171,10 +181,6 @@ void FMECommandsEngine::processCopy(const FMECmdBase& cmd, const FMECmdParams& p
     auto entryItCopy = m_diskStorage.find(*pEntryFolderFrom, itemToProcess);
     if (entryItCopy == pEntryFolderFrom->entries.end())
         throw_operation_error(FMEStorage::ErrorCode::eNotFound, itemToProcess);
-
-    auto folderTo = parseParam(params[0]);
-    if (folderTo.empty())
-        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
 
     EntryFolder* pEntryFolderTo = m_diskStorage.findFolder(folderTo);
     if (!pEntryFolderTo)
@@ -192,6 +198,13 @@ void FMECommandsEngine::processMove(const FMECmdBase& cmd, const FMECmdParams& p
     if (folderFrom.empty())
         throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
 
+    auto folderTo = parseParam(params[1]);
+    if (folderTo.empty())
+        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
+
+    if (isSameStartOfPath(folderTo, folderFrom))
+        throw_bad_dest_folder(folderTo);
+
     const auto itemToProcess = folderFrom.back();
     folderFrom.pop_back();
 
@@ -199,20 +212,16 @@ void FMECommandsEngine::processMove(const FMECmdBase& cmd, const FMECmdParams& p
     if (!pEntryFolderFrom)
         throw_folder_not_found(folderFrom);
 
+    EntryFolder* pEntryFolderTo = m_diskStorage.findFolder(folderTo);
+    if (!pEntryFolderTo)
+        throw_folder_not_found(folderTo);
+
     auto entryItMove = m_diskStorage.find(*pEntryFolderFrom, itemToProcess);
     if (entryItMove == pEntryFolderFrom->entries.end())
         throw_operation_error(FMEStorage::ErrorCode::eNotFound, itemToProcess);
 
     auto entryToMove = *entryItMove;
     pEntryFolderFrom->entries.erase(entryItMove);
-
-    auto folderTo = parseParam(params[1]);
-    if (folderTo.empty())
-        throw_wrong_params_count(cmd.getCmdName(), cmd.getParamsCount(), params.size());
-
-    EntryFolder* pEntryFolderTo = m_diskStorage.findFolder(folderTo);
-    if (!pEntryFolderTo)
-        throw_folder_not_found(folderTo);
 
     pEntryFolderTo->entries.push_back(entryToMove);
 }
@@ -234,4 +243,21 @@ std::vector<std::string> FMECommandsEngine::parseParam(const FMECmdParam& param)
     return result;
 }
 
+bool FMECommandsEngine::isSameStartOfPath(
+    const std::vector<std::string> pathMain, const std::vector<std::string>& pathTesting) const
+{
+    bool bResult(pathMain.size() >= pathTesting.size());
 
+    if (bResult)
+    {
+        auto it1 = pathMain.begin();
+        auto it2 = pathTesting.begin();
+        for (; bResult && it1 != pathMain.end() && it2 != pathTesting.end(); ++it1, ++it2)
+        {
+            bResult = bResult && *it1 == *it2;
+        }
+    }
+
+    return bResult;
+
+}
