@@ -1,0 +1,6 @@
+md /Test
+md /Test/Dir1
+md /Test/Dir1/Dir12
+mf /Test/Dir1/Dir12/file2.txt
+md /Test/Dir1/Dir12/file2.txt/file21.txt
+mf /Test/Dir1/Dir12/file2.txt/file22.txt

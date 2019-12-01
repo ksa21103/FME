@@ -1,0 +1,4 @@
+md /dir1
+mf /dir1/f.txt
+md /dir2
+mv /dir1 /dir2

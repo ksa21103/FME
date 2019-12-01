@@ -1,0 +1,6 @@
+md /dir1
+md /dir1/dir11
+mf /dir1/f11.txt
+md /dir1/dir12
+mf /dir1/dir12/f21.txt
+mv /dir1/dir12 /dir1/f11.txt
