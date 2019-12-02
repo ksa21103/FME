@@ -12,6 +12,8 @@
 
 #include "FMECmdBase.h"
 
+class TestTokenizeString;
+
 ////////////////////////////////////////////////////////////////////////////////
 // class FMECommandsParser - FME command line parser
 class FMECommandsParser
@@ -26,7 +28,7 @@ public:
     /// \return - parsed FME command
     FMECmdBasePtr parse(const std::string& strCmd, TCmdParamsContainer& cmdParams);
 
-private:
+protected:
 
     /// Register FME command
     template <typename TCmd>
