@@ -3,6 +3,8 @@ project(FME)
 
 set(CMAKE_CXX_STANDARD 17)
 
+add_subdirectory(Google_tests)
+
 add_executable(FME
         main.cpp
         FMEStorage.cpp FMEStorage.h
