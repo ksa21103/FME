@@ -16,10 +16,10 @@
 class TEntryBase;
 using TEntryBasePtr = std::shared_ptr<TEntryBase>;
 
-/// TEntryName - describes FME disk strage entry name
+/// TEntryName - describes FME disk storage entry name
 using TEntryName = std::string;
 
-/// TEntryPath - describes FME disk strage entry path
+/// TEntryPath - describes FME disk storage entry path
 using TEntryPath = std::vector<TEntryName>;
 
 namespace std

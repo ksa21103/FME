@@ -10,9 +10,10 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 add_executable(Google_Tests_run
                test_tokenize_string.cpp
                test_parse_commands.cpp
+               test_path_presentation.cpp
                ../FMEStorage.cpp ../FMEStorage.h
                ../FMEStoragePresenter.cpp ../FMEStoragePresenter.h
                ../FMECmdBase.cpp ../FMECmdBase.h
                ../FMECommandsEngine.h ../FMECommandsEngine.cpp
-               ../FMECommandsParser.h ../FMECommandsParser.cpp )
+               ../FMECommandsParser.h ../FMECommandsParser.cpp)
 target_link_libraries(Google_Tests_run gtest gtest_main)
