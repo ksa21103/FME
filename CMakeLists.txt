@@ -11,4 +11,4 @@ add_executable(FME
         FMEStoragePresenter.cpp FMEStoragePresenter.h
         FMECmdBase.cpp FMECmdBase.h
         FMECommandsEngine.h FMECommandsEngine.cpp
-        FMECommandsParser.h FMECommandsParser.cpp)
+        FMECommandsParser.h FMECommandsParser.cpp FMEMain.cpp FMEMain.h)

@@ -16,5 +16,6 @@ add_executable(Google_Tests_run
                ../FMEStoragePresenter.cpp ../FMEStoragePresenter.h
                ../FMECmdBase.cpp ../FMECmdBase.h
                ../FMECommandsEngine.h ../FMECommandsEngine.cpp
-               ../FMECommandsParser.h ../FMECommandsParser.cpp)
+               ../FMECommandsParser.h ../FMECommandsParser.cpp
+               ../FMEMain.h ../FMEMain.cpp)
 target_link_libraries(Google_Tests_run gtest gtest_main)

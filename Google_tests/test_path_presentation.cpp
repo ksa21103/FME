@@ -14,7 +14,7 @@ TEST(TestPathPresentation, TestPathEmpty)
 {
     TEntryPath path;
     const auto presStr = std::to_string(path);
-    EXPECT_EQ(presStr, "");
+    ASSERT_EQ(presStr, "");
 }
 
 TEST(TestPathPresentation, TestPath1)
@@ -22,7 +22,7 @@ TEST(TestPathPresentation, TestPath1)
     TEntryPath path;
     path.push_back("dir1");
     const auto presStr = std::to_string(path);
-    EXPECT_EQ(presStr, "dir1");
+    ASSERT_EQ(presStr, "dir1");
 }
 
 TEST(TestPathPresentation, TestPath2)
@@ -31,7 +31,7 @@ TEST(TestPathPresentation, TestPath2)
     path.push_back("dir1");
     path.push_back("dir2");
     const auto presStr = std::to_string(path);
-    EXPECT_EQ(presStr, "dir1/dir2");
+    ASSERT_EQ(presStr, "dir1/dir2");
 }
 
 TEST(TestPathPresentation, TestPath3WithRoot)
@@ -41,5 +41,5 @@ TEST(TestPathPresentation, TestPath3WithRoot)
     path.push_back("dir1");
     path.push_back("dir2");
     const auto presStr = std::to_string(path);
-    EXPECT_EQ(presStr, "/dir1/dir2");
+    ASSERT_EQ(presStr, "/dir1/dir2");
 }
