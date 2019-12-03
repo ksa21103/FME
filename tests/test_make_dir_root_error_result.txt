@@ -1,0 +1,2 @@
+ERROR: Operation error :  file/folder already exist (/)
+       in string 1 : md /

@@ -1,0 +1,2 @@
+ERROR: Bad destination path (/dir1/dir11)
+       in string 4 : mv /dir1 /dir1/dir11

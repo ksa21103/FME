@@ -1,0 +1,2 @@
+ERROR: Invalid params count for command md : 6 (required : 1)
+       in string 2 : md / Dir1 / Dir2 / NewDir

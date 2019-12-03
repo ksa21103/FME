@@ -1,0 +1,2 @@
+ERROR: Folder not found : /dir1/f11.txt
+       in string 6 : mv /dir1/dir12 /dir1/f11.txt
