@@ -11,6 +11,7 @@ add_executable(Google_Tests_run
                test_tokenize_string.cpp
                test_parse_commands.cpp
                test_path_presentation.cpp
+               test_scripts.cpp
                ../FMEStorage.cpp ../FMEStorage.h
                ../FMEStoragePresenter.cpp ../FMEStoragePresenter.h
                ../FMECmdBase.cpp ../FMECmdBase.h
