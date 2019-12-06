@@ -160,8 +160,10 @@ public:
     Entries::iterator find (EntryFolder& folder, const TEntryName& name);
 
     /// Find folder
-    /// \param folders - full oath too folned and it's name
-    /// \return - pointer to folder object - if found; nullptr - otherise
+    /// \param folders - full path to folder and it's name
+    /// \return - pointer to folder object - if found; nullptr - otherwise
+    ///
+    /// \exception std::runtime_error - if specified folder not found
     EntryFolder*      findFolder(const TEntryPath& folders);
 
     /// enum ErrorCode - describe error codes

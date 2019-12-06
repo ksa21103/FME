@@ -22,6 +22,8 @@ public:
      * @param streamOut - stream for rite results of processing
      * @param disk - FME disk storage
      * @return result code: 0 if success, -1 if errors
+     *
+     * @exception std::runtime_error - if unknown command received
      */
     static int worker(std::istream &streamIn, std::ostream &streamOut, FMEStorage &disk);
 };

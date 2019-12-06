@@ -26,6 +26,8 @@ public:
     /// \param strCmd - source command line text
     /// \param cmdParams - filled by parsed params
     /// \return - parsed FME command
+    ///
+    /// \exception std::runtime_error - if errors occurred
     FMECmdBasePtr parse(const std::string& strCmd, TCmdParamsContainer& cmdParams);
 
 protected:
